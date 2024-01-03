@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Salah Validator</string>
+    <string name="select_gender">Gender</string>
+    <string name="register">Register</string>
+    <string name="show_password">Show Password</string>
+    <string name="password">Password</string>
+    <string name="age">Age</string>
+    <string name="email">Email</string>
+    <string name="name">Name</string>
+    <string name="login">Login</string>
+    <string name="already_a_member">"Already a Member? "</string>
+    <string name="don_t_have_an_account">"Don't have an Account? "</string>
+    <string name="logout">Logout</string>
+    <string name="personal_info">Personal Info</string>
+    <string name="label_name">Name:</string>
+    <string name="label_email">Email:</string>
+    <string name="label_age">Age:</string>
+    <string name="label_gender">Gender:</string>
+    <string name="salah_analytics">Salah Analytics</string>
+    <string name="prayers_recorded">Prayers Recorded:</string>
+    <string name="valid_invalid_ratio">Valid/Invalid Ratio:</string>
+    <string name="most_successful">Most Successful:</string>
+    <string name="least_successful">Least Successful:</string>
+    <string name="validate_salah">Validate Salah</string>
+    <string name="stop">Stop</string>
+    <string name="start">Start</string>
+    <string-array name="gender_options">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Others</item>
+    </string-array>
+</resources>
