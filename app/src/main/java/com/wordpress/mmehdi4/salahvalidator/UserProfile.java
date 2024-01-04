@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -14,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class UserProfile extends AppCompatActivity {
 
+    private ProgressBar progressBarPersonalInfo, progressBarSalahAnalytics;
     private TextView txtViewName, txtViewEmail, txtViewAge, txtViewGender, txtViewRecordedPrayers, txtViewValidInvalidRatio, txtViewMostSuccessful, txtViewLeastSuccessful;
 
     private DatabaseReference databaseReference;
@@ -23,7 +26,8 @@ public class UserProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("users");
+        progressBarPersonalInfo = findViewById(R.id.progress_bar_personal_info);
+        progressBarSalahAnalytics = findViewById(R.id.progress_bar_salah_analytics);
 
         txtViewName = findViewById(R.id.txt_view_name);
         txtViewEmail = findViewById(R.id.txt_view_email);
@@ -34,12 +38,17 @@ public class UserProfile extends AppCompatActivity {
         txtViewMostSuccessful = findViewById(R.id.txt_view_most_successful);
         txtViewLeastSuccessful = findViewById(R.id.txt_view_least_successful);
 
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
+
         String userId = getIntent().getStringExtra("user_id");
 
         displayUserInfo(userId);
     }
 
     private void displayUserInfo(String userId) {
+        progressBarPersonalInfo.setVisibility(View.VISIBLE);
+        progressBarSalahAnalytics.setVisibility(View.VISIBLE);
+
         databaseReference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -50,10 +59,13 @@ public class UserProfile extends AppCompatActivity {
                         txtViewEmail.setText(user.getEmail());
                         txtViewAge.setText(String.valueOf(user.getAge()));
                         txtViewGender.setText(user.getGender());
+                        progressBarPersonalInfo.setVisibility(View.GONE);
+
                         txtViewRecordedPrayers.setText(String.valueOf(user.getTotalRecordedPrayers()));
                         txtViewValidInvalidRatio.setText(user.getValidInvalidRatio());
                         txtViewMostSuccessful.setText(user.getMostSuccessfulSalah());
                         txtViewLeastSuccessful.setText(user.getLeastSuccessfulSalah());
+                        progressBarSalahAnalytics.setVisibility(View.GONE);
                     }
                 }
             }
