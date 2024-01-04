@@ -9,13 +9,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class Login extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private EditText edtTxtLoginEmail, edtTxtLoginPass;
 
@@ -44,13 +43,13 @@ public class Login extends AppCompatActivity {
 
         loginButton.setOnClickListener(v -> login());
 
-        edtTxtRegister.setOnClickListener(v -> startActivity(new Intent(Login.this, Register.class)));
+        edtTxtRegister.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
 
         // Check if the user is already logged in
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
             // User is already logged in, proceed to MainActivity
-            startActivity(new Intent(Login.this, MainActivity.class));
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
     }
@@ -62,7 +61,7 @@ public class Login extends AppCompatActivity {
         firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        startActivity(new Intent(Login.this, MainActivity.class));
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     } else {
                         Toast.makeText(this, "Failed to Login\nIncorrect Email or Password", Toast.LENGTH_SHORT).show();

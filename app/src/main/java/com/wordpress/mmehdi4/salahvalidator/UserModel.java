@@ -1,14 +1,14 @@
 package com.wordpress.mmehdi4.salahvalidator;
 
-public class User {
+public class UserModel {
 
     private String id, name, email, gender;
 
     // calculate age dynamically
     private int age, totalRecordedPrayers, countValid1, countValid2, countValid3, countValid4, countInvalid1, countInvalid2, countInvalid3, countInvalid4;
 
-    public User() {}
-    public User(String id, String name, String email, int age, String gender) {
+    public UserModel() {}
+    public UserModel(String id, String name, String email, int age, String gender) {
         this.id = id;
         this.name = name;
         this.email = email;

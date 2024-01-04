@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class SalahValidator extends AppCompatActivity implements SensorEventListener {
+public class SalahValidatorActivity extends AppCompatActivity implements SensorEventListener {
 
     private int qiyamTargetCount, rukuTargetCount, sajdahTargetCount, jalsaTargetCount;
     private int qiyamPerformedCount, rukuPerformedCount, sajdahPerformedCount, jalsaPerformedCount;

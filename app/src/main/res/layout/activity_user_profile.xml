@@ -11,7 +11,7 @@
         android:padding="50dp"
         android:orientation="vertical"
         android:gravity="center"
-        tools:context=".UserProfile">
+        tools:context=".UserProfileActivity">
 
         <LinearLayout
             android:layout_width="match_parent"

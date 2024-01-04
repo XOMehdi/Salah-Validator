@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser != null) {
             executeFetchPrayerTimes();
 
-            btnValidateSalah.setOnClickListener(v -> startActivity(new Intent(this, SalahValidator.class)));
+            btnValidateSalah.setOnClickListener(v -> startActivity(new Intent(this, SalahValidatorActivity.class)));
 
             btnPersonalInfo.setOnClickListener(v -> userProfileActivity());
 
@@ -64,14 +64,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void userProfileActivity() {
         String userId = currentUser.getUid();
-        Intent userProfileIntent = new Intent(MainActivity.this, UserProfile.class);
+        Intent userProfileIntent = new Intent(MainActivity.this, UserProfileActivity.class);
         userProfileIntent.putExtra("user_id", userId);
         startActivity(userProfileIntent);
     }
 
     private void logOut() {
         firebaseAuth.signOut();
-        startActivity(new Intent(MainActivity.this, Login.class));
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
         finish();
     }
 

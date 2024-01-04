@@ -11,7 +11,7 @@
         android:paddingVertical="50dp"
         android:paddingHorizontal="10dp"
         android:orientation="vertical"
-        tools:context=".SalahValidator">
+        tools:context=".SalahValidatorActivity">
 
         <TextView
             android:layout_width="match_parent"

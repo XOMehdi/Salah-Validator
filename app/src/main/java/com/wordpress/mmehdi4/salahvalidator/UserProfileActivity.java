@@ -14,7 +14,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class UserProfile extends AppCompatActivity {
+public class UserProfileActivity extends AppCompatActivity {
 
     private ProgressBar progressBarPersonalInfo, progressBarSalahAnalytics;
     private TextView txtViewName, txtViewEmail, txtViewAge, txtViewGender, txtViewRecordedPrayers, txtViewValidInvalidRatio, txtViewMostSuccessful, txtViewLeastSuccessful;
@@ -53,7 +53,7 @@ public class UserProfile extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    User user = dataSnapshot.getValue(User.class);
+                    UserModel user = dataSnapshot.getValue(UserModel.class);
                     if (user != null) {
                         txtViewName.setText(user.getName());
                         txtViewEmail.setText(user.getEmail());

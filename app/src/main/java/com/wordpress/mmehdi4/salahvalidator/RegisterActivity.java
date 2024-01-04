@@ -20,7 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
 
-public class Register extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
     private EditText edtTxtName, edtTxtEmail, edtTxtPass, edtTxtAge;
     private Spinner spinGender;
@@ -58,10 +58,9 @@ public class Register extends AppCompatActivity {
 
         btnRegister.setOnClickListener(v -> signUp());
 
-        edtTxtLogin.setOnClickListener(v -> startActivity(new Intent(Register.this, Login.class)));
+        edtTxtLogin.setOnClickListener(v -> startActivity(new Intent(RegisterActivity.this, LoginActivity.class)));
 
     }
-
     private void signUp() {
         String name = edtTxtName.getText().toString();
         String email = edtTxtEmail.getText().toString();
@@ -74,10 +73,10 @@ public class Register extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign up success, update UI with the signed-in user's information
                         String userId = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
-                        User user = new User(userId, name, email, age, gender);
+                        UserModel user = new UserModel(userId, name, email, age, gender);
                         databaseReference.child(userId).setValue(user);
 
-                        startActivity(new Intent(Register.this, Login.class));
+                        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                         finish();
                     } else {
                         Toast.makeText(this, "Failed to Register\nPlease Try Again Later", Toast.LENGTH_SHORT).show();
