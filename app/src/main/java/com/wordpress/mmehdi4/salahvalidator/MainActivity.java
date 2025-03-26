@@ -1,5 +1,6 @@
 package com.wordpress.mmehdi4.salahvalidator;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -12,6 +13,9 @@ import com.google.firebase.auth.FirebaseUser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -76,20 +80,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void executeFetchPrayerTimes() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        SharedPreferences prefs = getSharedPreferences("prayer_times_cache_prefs", Context.MODE_PRIVATE);
+        String cachedData = prefs.getString("prayer_times", null);
+        long lastUpdated = prefs.getLong("last_updated", 0);
+        Calendar calendar = Calendar.getInstance();
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+        int currentMonth = calendar.get(Calendar.MONTH) + 1;
+        int currentYear = calendar.get(Calendar.YEAR);
 
+        // Check if cached data is valid for today
+        Calendar lastUpdatedCalendar = Calendar.getInstance();
+        lastUpdatedCalendar.setTimeInMillis(lastUpdated);
+        int lastUpdatedDay = lastUpdatedCalendar.get(Calendar.DAY_OF_MONTH);
+        int lastUpdatedMonth = lastUpdatedCalendar.get(Calendar.MONTH) + 1;
+        int lastUpdatedYear = lastUpdatedCalendar.get(Calendar.YEAR);
+
+        if (cachedData != null && lastUpdatedDay == currentDay && lastUpdatedMonth == currentMonth && lastUpdatedYear == currentYear) {
+            // Use cached data if it is from today
+            processPrayerTimes(cachedData);
+            return;
+        }
+
+        // If no valid cache, fetch new data
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> future = executor.submit(() -> {
             try {
                 String address = "Peshawar Museum, Jamrud Road, Peshawar, Pakistan";
-                Calendar calendar = Calendar.getInstance();
-                int month = calendar.get(Calendar.MONTH) + 1; // Months are 0-based in Calendar
-                int year = calendar.get(Calendar.YEAR);
                 int method = 1; // University of Islamic Sciences, Karachi
                 int school = 1; // Hanafi
-
                 String encodedAddress = URLEncoder.encode(address, "UTF-8");
-                URL url = new URL("https://api.aladhan.com/v1/calendarByAddress/" + year + "/" + month + "?address="
-                        + encodedAddress + "&method=" + method + "&school=" + school);
+                URL url = new URL("https://api.aladhan.com/v1/calendarByAddress/" + currentYear + "/" + currentMonth
+                        + "?address=" + encodedAddress + "&method=" + method + "&school=" + school);
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -97,11 +118,9 @@ public class MainActivity extends AppCompatActivity {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                     StringBuilder jsonResponse = new StringBuilder();
                     String inputLine;
-
                     while ((inputLine = in.readLine()) != null) {
                         jsonResponse.append(inputLine);
                     }
-
                     return jsonResponse.toString();
                 } finally {
                     urlConnection.disconnect();
@@ -112,21 +131,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Close the executor
-        executor.shutdown();
-
         try {
             String jsonResponse = future.get();
-
             if (jsonResponse != null && !jsonResponse.isEmpty()) {
+                // Save to cache
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("prayer_times", jsonResponse);
+                editor.putLong("last_updated", System.currentTimeMillis());
+                editor.apply();
+
                 runOnUiThread(() -> processPrayerTimes(jsonResponse));
             } else {
                 runOnUiThread(() -> Toast.makeText(this, "Error fetching prayer times. Please try again later.", Toast.LENGTH_SHORT).show());
             }
         } catch (Exception e) {
             e.printStackTrace();
+            runOnUiThread(() -> Toast.makeText(this, "Error fetching data. Check your internet connection.", Toast.LENGTH_SHORT).show());
+        } finally {
+            executor.shutdown();
         }
     }
+
 
     private void processPrayerTimes(String jsonResponse) {
         try {

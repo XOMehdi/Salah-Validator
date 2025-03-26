@@ -142,9 +142,6 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
     }
 
     private boolean isUprightPosition(float x, float y, float z) {
-        // Check for Qiyam position
-        // Assume the phone bottom is pointing negative y axis,
-        // and the device's top is pointing positive y axis or the device is sitting along the y axis
         boolean isQiyam = Math.abs(x) < 2 && Math.abs(y) > 8 && Math.abs(z) < 2;
 
         Toast.makeText(this, String.format("Qiyam: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
@@ -153,9 +150,6 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
     }
 
     private boolean isHorizontalPosition(float x, float y, float z) {
-        // Check for Ruku position
-        // Assume the phone bottom is pointing negative x axis,
-        // and the device's top is pointing positive x axis or the device is sitting along the x axis
         boolean isRuku = Math.abs(x) < 2 && Math.abs(y) < 2 && z > -8;
 
         Toast.makeText(this, String.format("Ruku: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
