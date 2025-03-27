@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -172,9 +173,7 @@ public class MainActivity extends AppCompatActivity {
         networkReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-                if (activeNetwork != null && activeNetwork.isConnected()) {
+                if (isInternetAvailable(context)) {
                     executeFetchPrayerTimes();
                 }
             }
@@ -183,6 +182,23 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         isReceiverRegistered = true;
     }
+
+    // Method to check internet availability
+    private boolean isInternetAvailable(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+                Network network = cm.getActiveNetwork();
+                if (network == null) return false;
+
+                NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+                return capabilities != null &&
+                        (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
+        }
+        return false;
+    }
+
 
     @Override
     protected void onDestroy() {
