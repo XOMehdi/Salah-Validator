@@ -1,21 +1,27 @@
 package com.wordpress.mmehdi4.salahvalidator;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -34,14 +40,19 @@ import java.util.concurrent.Future;
 public class MainActivity extends AppCompatActivity {
 
     private TextView txtViewFajr, txtViewSunrise, txtViewDhuhr, txtViewAsr, txtViewMaghrib, txtViewIsha;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
+    private boolean isReceiverRegistered = false;
+    private BroadcastReceiver networkReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize UI
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         txtViewFajr = findViewById(R.id.txt_view_fajr_time);
         txtViewSunrise = findViewById(R.id.txt_view_sunrise_time);
         txtViewDhuhr = findViewById(R.id.txt_view_dhuhr_time);
@@ -63,7 +74,13 @@ public class MainActivity extends AppCompatActivity {
             btnPersonalInfo.setOnClickListener(v -> userProfileActivity());
 
             btnLogout.setOnClickListener(v -> logOut());
+
+            // Set SwipeRefresh listener for pull-to-refresh
+            swipeRefreshLayout.setOnRefreshListener(this::executeFetchPrayerTimes);
         }
+
+        // Register network change receiver
+        registerNetworkReceiver();
     }
 
     private void userProfileActivity() {
@@ -96,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
         int lastUpdatedYear = lastUpdatedCalendar.get(Calendar.YEAR);
 
         if (cachedData != null && lastUpdatedDay == currentDay && lastUpdatedMonth == currentMonth && lastUpdatedYear == currentYear) {
-            // Use cached data if it is from today
             processPrayerTimes(cachedData);
+            swipeRefreshLayout.setRefreshing(false); // Stop refresh animation
             return;
         }
 
@@ -134,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             String jsonResponse = future.get();
             if (jsonResponse != null && !jsonResponse.isEmpty()) {
-                // Save to cache
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("prayer_times", jsonResponse);
                 editor.putLong("last_updated", System.currentTimeMillis());
@@ -142,16 +158,39 @@ public class MainActivity extends AppCompatActivity {
 
                 runOnUiThread(() -> processPrayerTimes(jsonResponse));
             } else {
-                runOnUiThread(() -> Toast.makeText(this, "Error fetching prayer times. Please try again later.", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, "Error fetching prayer times.", Toast.LENGTH_SHORT).show());
             }
         } catch (Exception e) {
             e.printStackTrace();
-            runOnUiThread(() -> Toast.makeText(this, "Error fetching data. Check your internet connection.", Toast.LENGTH_SHORT).show());
         } finally {
             executor.shutdown();
+            swipeRefreshLayout.setRefreshing(false); // Stop refresh animation
         }
     }
 
+    private void registerNetworkReceiver() {
+        networkReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                if (activeNetwork != null && activeNetwork.isConnected()) {
+                    executeFetchPrayerTimes();
+                }
+            }
+        };
+
+        registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        isReceiverRegistered = true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (isReceiverRegistered) {
+            unregisterReceiver(networkReceiver);
+        }
+        super.onDestroy();
+    }
 
     private void processPrayerTimes(String jsonResponse) {
         try {
