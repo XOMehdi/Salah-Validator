@@ -1,18 +1,24 @@
 package com.wordpress.mmehdi4.salahvalidator;
 
+import android.hardware.SensorEventListener;
+import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.content.Context;
+
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
-import androidx.appcompat.app.AppCompatActivity;
 
-public class SalahValidatorActivity extends AppCompatActivity implements SensorEventListener {
+public class SalahValidatorFragment extends Fragment implements SensorEventListener {
 
     private int qiyamTargetCount, rukuTargetCount, sajdahTargetCount, jalsaTargetCount;
     private int qiyamPerformedCount, rukuPerformedCount, sajdahPerformedCount, jalsaPerformedCount;
@@ -23,38 +29,46 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
     private boolean isHorizontal = false;
     private boolean isAngled = false;
 
-    private TextView txtViewQiyamTargetCount,txtViewQiyamPerformedCount, txtViewRukuTargetCount, txtViewRukuPerformedCount,
-            txtViewSajdahTargetCount, txtViewSajdahPerformedCount, txtViewJalsaTargetCount, txtViewJalsaPerformedCount;
+    private TextView txtViewQiyamPerformedCount;
+    private TextView txtViewRukuPerformedCount;
+    private TextView txtViewSajdahPerformedCount;
+    private TextView txtViewJalsaPerformedCount;
 
+    public SalahValidatorFragment() {
+        // Required empty public constructor
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_salah_validator);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_salah_validator, container, false);
 
         int totalRakah = 2;
         initTargetCounts(totalRakah);
 
-        txtViewQiyamTargetCount = findViewById(R.id.txt_view_qiyam_target_count);
-        txtViewQiyamPerformedCount = findViewById(R.id.txt_view_qiyam_performed_count);
-        txtViewRukuTargetCount = findViewById(R.id.txt_view_ruku_target_count);
-        txtViewRukuPerformedCount = findViewById(R.id.txt_view_ruku_performed_count);
-        txtViewSajdahTargetCount = findViewById(R.id.txt_view_sajdah_target_count);
-        txtViewSajdahPerformedCount = findViewById(R.id.txt_view_sajdah_performed_count);
-        txtViewJalsaTargetCount = findViewById(R.id.txt_view_jalsa_target_count);
-        txtViewJalsaPerformedCount = findViewById(R.id.txt_view_jalsa_performed_count);
-        ToggleButton tglBtnStartStop = findViewById(R.id.tgl_btn_start_stop);
+        // Initialize UI components
+        TextView txtViewQiyamTargetCount = view.findViewById(R.id.txt_view_qiyam_target_count);
+        txtViewQiyamPerformedCount = view.findViewById(R.id.txt_view_qiyam_performed_count);
+        TextView txtViewRukuTargetCount = view.findViewById(R.id.txt_view_ruku_target_count);
+        txtViewRukuPerformedCount = view.findViewById(R.id.txt_view_ruku_performed_count);
+        TextView txtViewSajdahTargetCount = view.findViewById(R.id.txt_view_sajdah_target_count);
+        txtViewSajdahPerformedCount = view.findViewById(R.id.txt_view_sajdah_performed_count);
+        TextView txtViewJalsaTargetCount = view.findViewById(R.id.txt_view_jalsa_target_count);
+        txtViewJalsaPerformedCount = view.findViewById(R.id.txt_view_jalsa_performed_count);
+        ToggleButton tglBtnStartStop = view.findViewById(R.id.tgl_btn_start_stop);
 
+        // Set target counts
         txtViewQiyamTargetCount.setText(String.valueOf(qiyamTargetCount));
         txtViewRukuTargetCount.setText(String.valueOf(rukuTargetCount));
         txtViewSajdahTargetCount.setText(String.valueOf(sajdahTargetCount));
         txtViewJalsaTargetCount.setText(String.valueOf(jalsaTargetCount));
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         }
 
+        // Toggle button listener
         tglBtnStartStop.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 startSensor();
@@ -62,10 +76,11 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
                 stopSensor();
             }
         });
+
+        return view;
     }
 
     private void initTargetCounts(int totalRakah) {
-
         if (totalRakah == 1) {
             qiyamTargetCount = 2;
             rukuTargetCount = 1;
@@ -97,32 +112,27 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
     }
 
     private void startSensor() {
-
         initPerformedCounts();
-
         updateQiyamCount();
         updateRukuCount();
         updateSajdahCount();
         updateJalsaCount();
 
         if (accelerometerSensor != null) {
-            // Register the sensor listener
             sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Toast.makeText(this, "Sensor Started", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Sensor Started", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Accelerometer not available on this device", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Accelerometer not available", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void stopSensor() {
-        // Unregister the sensor listener
         sensorManager.unregisterListener(this);
-        Toast.makeText(this, "Sensor Stopped", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "Sensor Stopped", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Not needed for this application
     }
 
     private void updateQiyamCount() {
@@ -144,7 +154,7 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
     private boolean isUprightPosition(float x, float y, float z) {
         boolean isQiyam = Math.abs(x) < 2 && Math.abs(y) > 8 && Math.abs(z) < 2;
 
-        Toast.makeText(this, String.format("Qiyam: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), String.format("Qiyam: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
 
         return isQiyam;
     }
@@ -152,7 +162,7 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
     private boolean isHorizontalPosition(float x, float y, float z) {
         boolean isRuku = Math.abs(x) < 2 && Math.abs(y) < 2 && z > -8;
 
-        Toast.makeText(this, String.format("Ruku: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), String.format("Ruku: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
 
         return isRuku;
     }
@@ -164,11 +174,10 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
         // Adjusted conditions for the specified angled position
         boolean isSajdah = Math.abs(x) < 2 && Math.abs(y) > 3 && Math.abs(y) < 8 && Math.abs(z) < 2;
 
-        Toast.makeText(this, String.format("Angled: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), String.format("Angled: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
 
         return isSajdah;
     }
-
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -207,8 +216,8 @@ public class SalahValidatorActivity extends AppCompatActivity implements SensorE
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopSensor(); // Ensure to stop the sensor when the activity is destroyed
+    public void onDestroyView() {
+        super.onDestroyView();
+        stopSensor();
     }
 }
