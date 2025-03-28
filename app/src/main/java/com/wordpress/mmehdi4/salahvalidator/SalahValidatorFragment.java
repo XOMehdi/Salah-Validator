@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,9 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
 
     private SensorManager sensorManager;
     private Sensor accelerometerSensor;
+
+    private static final String TAG = "MotionDebug";
+
     private boolean isUpright = false;
     private boolean isHorizontal = false;
     private boolean isAngled = false;
@@ -74,6 +78,7 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
                 startSensor();
             } else {
                 stopSensor();
+                Toast.makeText(getActivity(), "Sensor Stopped", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -128,7 +133,6 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
 
     private void stopSensor() {
         sensorManager.unregisterListener(this);
-        Toast.makeText(getActivity(), "Sensor Stopped", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -154,7 +158,7 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
     private boolean isUprightPosition(float x, float y, float z) {
         boolean isQiyam = Math.abs(x) < 2 && Math.abs(y) > 8 && Math.abs(z) < 2;
 
-        Toast.makeText(getActivity(), String.format("Qiyam: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, String.format("Qiyam Check - x=%.2f, y=%.2f, z=%.2f, Result: %b", x, y, z, isQiyam));
 
         return isQiyam;
     }
@@ -162,21 +166,23 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
     private boolean isHorizontalPosition(float x, float y, float z) {
         boolean isRuku = Math.abs(x) < 2 && Math.abs(y) < 2 && z > -8;
 
-        Toast.makeText(getActivity(), String.format("Ruku: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, String.format("Ruku Check - x=%.2f, y=%.2f, z=%.2f, Result: %b", x, y, z, isRuku));
 
         return isRuku;
     }
 
     private boolean isAngledPosition(float x, float y, float z) {
-        // Check for the specified angled position
-        // Assume the device is at an angle of 35 to 60 degrees with the ground
-
-        // Adjusted conditions for the specified angled position
+        // Fine-tune the Sajdah angle conditions
         boolean isSajdah = Math.abs(x) < 2 && Math.abs(y) > 3 && Math.abs(y) < 8 && Math.abs(z) < 2;
 
-        Toast.makeText(getActivity(), String.format("Angled: x=%.2f, y=%.2f, z=%.2f", x, y, z), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, String.format("Sajdah Check - x=%.2f, y=%.2f, z=%.2f, Result: %b", x, y, z, isSajdah));
 
         return isSajdah;
+    }
+
+    private void logRawSensorValues(float x, float y, float z) {
+        // Log raw accelerometer readings for calibration and debugging
+        Log.d(TAG, String.format("Raw Sensor Values - x=%.2f, y=%.2f, z=%.2f", x, y, z));
     }
 
     @Override
@@ -185,6 +191,8 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
+
+            logRawSensorValues(x, y, z);
 
             boolean isUprightNow = isUprightPosition(x, y, z);
 
