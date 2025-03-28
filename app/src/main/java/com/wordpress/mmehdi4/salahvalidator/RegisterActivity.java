@@ -76,7 +76,9 @@ public class RegisterActivity extends AppCompatActivity {
                         UserModel user = new UserModel(userId, name, email, age, gender);
                         databaseReference.child(userId).setValue(user);
 
-                        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Prevent back navigation
+                        startActivity(intent);
                         finish();
                     } else {
                         Toast.makeText(this, "Failed to Register\nPlease Try Again Later", Toast.LENGTH_SHORT).show();
