@@ -49,6 +49,7 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
 
         int totalRakah = 2;
         initTargetCounts(totalRakah);
+        initPerformedCounts();
 
         // Initialize UI components
         TextView txtViewQiyamTargetCount = view.findViewById(R.id.txt_view_qiyam_target_count);
@@ -66,6 +67,12 @@ public class SalahValidatorFragment extends Fragment implements SensorEventListe
         txtViewRukuTargetCount.setText(String.valueOf(rukuTargetCount));
         txtViewSajdahTargetCount.setText(String.valueOf(sajdahTargetCount));
         txtViewJalsaTargetCount.setText(String.valueOf(jalsaTargetCount));
+
+        // Set performed counts
+        txtViewQiyamPerformedCount.setText(String.valueOf(qiyamPerformedCount));
+        txtViewRukuPerformedCount.setText(String.valueOf(rukuPerformedCount));
+        txtViewSajdahPerformedCount.setText(String.valueOf(sajdahPerformedCount));
+        txtViewJalsaPerformedCount.setText(String.valueOf(jalsaPerformedCount));
 
         sensorManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {

@@ -29,6 +29,16 @@
         <item>Female</item>
         <item>Others</item>
     </string-array>
+    <!-- General Strings -->
+    <string name="validate_salah_2_rakah">Validate Salah (2 RAKAH)</string>
+    <string name="target_count">Target Count:</string>
+    <string name="performed_count">Performed Count:</string>
+
+    <!-- Salah Steps -->
+    <string name="qiyam_qauma">Qiyam &amp; Qauma</string>
+    <string name="ruku">Ruku</string>
+    <string name="sajda">Sajda</string>
+    <string name="tashahhud_jalsa">Tashahhud &amp; Jalsa</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
